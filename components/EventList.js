@@ -8,7 +8,7 @@ function EventList  ({ events, changeCurrentEvent, deleteEvent }) {
 
   return (
     <FlatList
-      style={{ padding: 50 }}
+      style={{ padding: 10 }}
       data={events}
       keyExtractor={item => item.id}
       renderItem={({ item }) => (

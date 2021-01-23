@@ -49,7 +49,6 @@ function Dashboard({navigation}) {
     const tmpEvents = events.slice();
     saveEventToDB({ name, date, url }).then((doc) => {
       tmpEvents.push({ id: doc.id, name, date, url });
-      console.log("new event")
       setEvents(tmpEvents);
     })
   }

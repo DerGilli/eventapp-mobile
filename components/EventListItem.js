@@ -1,12 +1,10 @@
 import React from 'react';
-import { View, Text, Button } from 'react-native';
+import { View, Text, Button, TouchableOpacity, StyleSheet } from 'react-native';
 
 function EventListItem ({ event, deleteEvent, changeCurrentEvent }) {
 
-  const handleClick = (e) => {
-    if (!e.target.classList.contains("btn")) {
+  const handleClick = () => {
       changeCurrentEvent(event);
-    }
   }
 
   const handleDelete = (e) => {
@@ -14,11 +12,34 @@ function EventListItem ({ event, deleteEvent, changeCurrentEvent }) {
   }
 
   return (
-    <View>
-      <Text>{event.name}</Text>
-      <Button title="delete" onPress={handleDelete}/>
+    <View style={styles.container}>
+      <TouchableOpacity style={styles.eventName} onPress={handleClick}>
+        <Text >{event.name}</Text>
+      </TouchableOpacity>
+      <TouchableOpacity  onPress={handleDelete}>
+        <Text style={styles.btnDng}>X</Text>
+      </TouchableOpacity>
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flexDirection: "row",
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical:5,
+  },
+  btnDng: {
+    color: 'white',
+    backgroundColor: 'red',
+    padding:10,
+  },
+  eventName: {
+    flex: 1,
+    backgroundColor: 'white',
+    padding: 10,
+  }
+})
 
 export default EventListItem;
