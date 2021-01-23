@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 //import Progressbar from './Progressbar';
-import { Button, Modal, View, Text, TextInput, TouchableOpacity } from 'react-native';
+import { Button, Modal, View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
-const AddEvent = ({ addNewEvent }) => {
+const AddEvent = ({ navigation }) => {
 
   const [eventName, setEventName] = useState('');
-  const [date, setDate] = useState(new Date());
+  const [date, setDate] = useState(new Date().setHours(24,0,0,0));
+  const [time, setTime] = useState(new Date().setHours(24,0,0,0));
   const [imageUrl, setImageUrl] = useState(null);
   const [file, setFile] = useState(null);
   const allowedTypes = ['image/png', 'image/jpeg'];
@@ -14,6 +15,7 @@ const AddEvent = ({ addNewEvent }) => {
   //Modal
   const [show, setShow] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
   const handleClose = () => setShow(false);
 
 
@@ -22,6 +24,12 @@ const AddEvent = ({ addNewEvent }) => {
     const newDate = selectedDate || date
     setShowDatePicker(false)
     setDate(newDate);
+  }
+
+    const handleTimeChange = (e, selectedTime) => {
+    const newTime = selectedTime || time
+    setShowTimePicker(false)
+    setTime(newTime);
   }
 
   const handleNameChange = (e) => {
@@ -38,76 +46,73 @@ const AddEvent = ({ addNewEvent }) => {
     }
   }
 
-  const handleAddEvent = (e) => {
-    e.preventDefault()
-    handleClose()
-    addNewEvent({
+  const handleAddEvent = () => {
+    const event ={
       name: eventName,
-      date: date,
+      date: date.toString(),
       url: imageUrl
-    })
+    }
     setImageUrl(null)
+    navigation.navigate('Dashboard', {event})
   }
 
-
-  // let button =
-  //   <>
-  //     <Modal animation={false} show={show} onHide={handleClose}>
-  //       <Modal.Header closeButton>
-  //         <Modal.Title>Add New Event</Modal.Title>
-  //       </Modal.Header>
-
-  //       <Modal.Body>
-  //         <Form>
-  //           <Form.Group controlId="formEventName">
-  //             <Form.Label>Event Name</Form.Label>
-  //             <Form.Control type="text" placeholder="Enter event name" value={eventName} onChange={handleNameChange} />
-  //           </Form.Group>
-
-  //           <Form.Group controlId="formEventDate">
-  //             <Form.Label>Event Date</Form.Label>
-  //             <Form.Control type="datetime-local" value={eventDate} onChange={handleDateChange} />
-  //           </Form.Group>
-
-  //           <Form.Group>
-  //             <Form.File id="formFileControl" label="Background Image" onChange={handleFileChange} />
-  //             {file && <Progressbar file={file} setFile={setFile} setImageUrl={setImageUrl} />}
-  //           </Form.Group>
-
-  //           <Button className="w-100" variant="primary" type="submit" onClick={handleAddEvent} disabled={file && !imageUrl ? true : false}>
-  //             Save
-  //           </Button>
-  //         </Form>
-  //       </Modal.Body>
-  //     </Modal>
-  //   </>
+  const options = { weekday: "long", year: "numeric", month: "long", day: "numeric", hour:"2-digits", minutes:"2-digits"}
 
   return (
-<>
-    <Modal
-      animationType="fade"
-      transparent={true}
-      visible={show}
-      >
-        <View style={{ flex: 1, justifyContent: 'center', alignItems:'stretch', backgroundColor: "white"}}>
-          <Button title="Datum auswählen" onPress={() => setShowDatePicker(true)}/>
-          {showDatePicker && <DateTimePicker
-            onChange={handleDateChange}
-            value={date}
-            mode="date"
-          />}
-          <Text>{new Date(date).toLocaleDateString()}</Text>
-          <Text>Name</Text>
-          <TextInput placeholder="z.B. Geburtstag" value={eventName} onChangeText={(txt) => setEventName(txt)}></TextInput>
-          <Button title="close" onPress={() => setShow(!show)}/>
-          <Button title="save" onPress={handleAddEvent}/>
-      </View>
-
-    </Modal>
-      <Button title="Add" onPress={() => setShow(true)} />
-      </>
+        <View style={{flex:1, justifyContent:'center', alignItems:"center"}}>
+          <View style={{ justifyContent: 'center', alignItems: 'stretch', backgroundColor: "white", padding: 20, width: "80%", }}>
+            <View style={{ alignItems: "center", marginBottom: 20, paddingBottom: 5, borderBottomColor: "silver", borderBottomWidth: 1}}><TextInput style={ styles.header} placeholder="Event Name" value={eventName} onChangeText={(txt) => setEventName(txt)}></TextInput></View>
+            <View style={styles.formGroup}>
+              <Text style={styles.btnDescription}>Datum</Text>
+              <TouchableOpacity style={styles.btn} onPress={() => setShowDatePicker(true)}>
+                <Text style={styles.btnText}>{new Date(date).toLocaleDateString('de-DE', options)}</Text>
+              </TouchableOpacity>
+            {showDatePicker && <DateTimePicker
+              onChange={handleDateChange}
+              value={date}
+              mode="date"
+              />}
+            </View>
+            <View style={styles.formGroup}>
+              <Text style={styles.btnDescription}>Uhrzeit</Text>
+              <TouchableOpacity style={styles.btn} onPress={() => setShowTimePicker(true)}>
+                <Text style={styles.btnText}>{new Date(time).getHours() + ':' + new Date(time).getMinutes()}</Text>
+              </TouchableOpacity>
+              {showTimePicker && <DateTimePicker
+              onChange={handleTimeChange}
+              value={time}
+              mode="time"
+              />}
+            </View>
+            <Button title="save" onPress={handleAddEvent}/>
+          </View>
+        </View>
   )
 
 }
+
+const styles = StyleSheet.create({
+  header: {
+    fontSize: 20
+  },
+  formGroup: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 5,
+  },
+  btnDescription: {
+    flex: 1
+  },
+  btn: {
+    backgroundColor: "steelblue",
+    padding: 5,
+    flex:1,
+  },
+  btnText: {
+    color: "white",
+    textAlign: "center",
+  }
+})
 
 export default AddEvent;

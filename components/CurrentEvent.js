@@ -22,7 +22,16 @@ function CurrentEvent ({ event }){
     }
   }, [])
 
-  if (event === null) return <Text>No event selected</Text>
+  if (event === null) return (
+    <View style={styles.event}>
+      <View style={styles.eventDescription}>
+        <ImageBackground style={styles.image} source={require( '../assets/empty.png')}>
+        <Text style={{ textAlign: "center", color: 'white'}}>No event selected</Text>  
+        </ImageBackground>
+      </View>
+    </View>
+  )
+    
 
   //do the math to calculate the countdown
   let countdownDate = new Date(event.date).getTime()
@@ -37,8 +46,8 @@ function CurrentEvent ({ event }){
     <View style={styles.event}>
       <ImageBackground style={styles.image} source={{ uri: event.url }}>
         <View style={styles.eventDescription}>
-        <Text style={{textAlign: 'center', fontSize:20}}>{event.name}</Text>
-        <Text>{d} Days, {h} Hours, {m} Minutes, {s} Seconds</Text>
+          <Text style={styles.eventText}>{event.name}</Text>
+          <Text style={styles.eventText}>{d} Days, {h} Hours, {m} Minutes, {s} Seconds</Text>
         </View>
       </ImageBackground>
     </View>
@@ -57,11 +66,21 @@ const styles = StyleSheet.create({
     flex: 1,
     resizeMode: "cover",
     justifyContent: 'center',
+    backgroundColor: '#777',
   },
   eventDescription: {
     alignSelf: 'center',
-    backgroundColor: 'rgba(255,255,255, 0.6)',
-  }
+    flex: 1,
+    width: '100%',
+    justifyContent: 'flex-end',
+    marginBottom:10,
+  },
+  eventText: {
+    textAlign: 'center',
+    fontSize: 20,
+    backgroundColor: "rgba(0,0,0,0.3)",
+    color: "white"
+  },
 })
 
 export default CurrentEvent;

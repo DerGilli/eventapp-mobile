@@ -4,9 +4,9 @@ import AddEvent from './AddEvent';
 import EventList from './EventList';
 import { db } from "../firebase/config";
 import { useAuth } from "../contexts/AuthContext";
-import { Button, View } from 'react-native';
+import { Button, View, StyleSheet } from 'react-native';
 
-function Dashboard({navigation}) {
+function Dashboard({navigation, route}) {
 
   const [events, setEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(true)
@@ -21,23 +21,29 @@ function Dashboard({navigation}) {
     })
   }
 
+  const HandleNewEvent = async () => {
+    try {
+      const newEvents = []
+      if (route.params?.event) {
+        console.log(route.params.event)
+        await saveEventToDB(route.params.event)
+        route.params = null
+      }
+      const snapshot = await db.collection("Events").where("User", "==", currentUser.uid).get()
+      snapshot.docs.forEach(doc => {
+        newEvents.push({ id: doc.id, name: doc.data().Name, date: Date.parse(doc.data().Date), url: doc.data().Url })
+      })
+      setEvents(newEvents)
+    } catch (error) {
+      console.log("Handle New Event Error " + error)
+    }
+  }
+
   useEffect(() => {
     if (currentUser != null) {
-      let dbEvents = []
-      try {
-        db.collection("Events").where("User", "==", currentUser.uid).get().then((snapshot) => {
-          snapshot.docs.forEach(doc => {
-            dbEvents.push({ id: doc.id, name: doc.data().Name, date: Date.parse(doc.data().Date), url: doc.data().Url })
-            setEvents(dbEvents)
-          })
-          setIsLoading(false)
-        })
-      } catch (error) {
-        console.log(error)
-      }
+      HandleNewEvent().then(setIsLoading(false))
     }
-  }, [currentUser])
-
+  }, [currentUser, route.params?.event])
 
   let selectedEvent;
   events.length > 0 ? selectedEvent = events[0] : selectedEvent = null;
@@ -45,17 +51,9 @@ function Dashboard({navigation}) {
 
   const [currentEvent, setCurrentEvent] = useState(selectedEvent);
 
-  const addNewEvent = ({ name, date, url }) => {
-    const tmpEvents = events.slice();
-    saveEventToDB({ name, date, url }).then((doc) => {
-      tmpEvents.push({ id: doc.id, name, date, url });
-      setEvents(tmpEvents);
-    })
-  }
 
   const handleLogOut = (e) => {
     logout()
-    //navigation.navigate("Login")
   }
 
   const changeCurrentEvent = (selectedEvent) => {
@@ -78,19 +76,34 @@ function Dashboard({navigation}) {
   function removeEventfromDB(eventToDelete) {
     db.collection("Events").doc(eventToDelete.id).delete().then()
   }
-if(isLoading) return <View></View>
+
+  const Separator = () => (
+  <View style={styles.separator} />
+  );
+  
+  if(isLoading) return <View></View>
 
   return (
-    <View>
+    <View style={{flex:1, justifyContent: "flex-start"}}>
       <CurrentEvent event={currentEvent} />
       <EventList
         events={events}
         changeCurrentEvent={(selectedEvent) => changeCurrentEvent(selectedEvent)}
         deleteEvent={(eventToDelete) => deleteEvent(eventToDelete)} />
-      <AddEvent addNewEvent={(event) => addNewEvent(event)} />
+      <Button title="+" onPress={() => navigation.navigate("Add Event")} />
+      <Separator/>
       <Button title="Log Out" onPress={handleLogOut}/>
     </View>
   )
 }
+
+const styles = StyleSheet.create({
+  separator: {
+    marginVertical: 8,
+    flex:1,
+    borderBottomColor: '#737373',
+    borderBottomWidth: StyleSheet.hairlineWidth,
+  },
+});
 
 export default Dashboard
