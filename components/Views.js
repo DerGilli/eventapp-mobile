@@ -1,11 +1,11 @@
 import React from 'react'
 import { createStackNavigator } from "@react-navigation/stack";
 import { useAuth } from "../contexts/AuthContext";
-import Header from './Header'
 import Dashboard from './Dashboard'
 import Login from './Login'
 import Signup from './Signup';
 import AddEvent from './AddEvent';
+import Profile from './Profile'
 
 const Stack = createStackNavigator();
 
@@ -17,6 +17,7 @@ function Views() {
         <>
           <Stack.Screen name="Dashboard" component={Dashboard} />
           <Stack.Screen name="Add Event" component={AddEvent} />
+          <Stack.Screen name="Profile" component={Profile} />
         </>
         ) : (
         <>

@@ -4,13 +4,13 @@ import AddEvent from './AddEvent';
 import EventList from './EventList';
 import { db } from "../firebase/config";
 import { useAuth } from "../contexts/AuthContext";
-import { Button, View, StyleSheet } from 'react-native';
+import { Button, View, StyleSheet, TouchableOpacity, Text } from 'react-native';
 
 function Dashboard({navigation, route}) {
 
   const [events, setEvents] = useState([]);
   const [isLoading, setIsLoading] = useState(true)
-  const { currentUser, logout } = useAuth()
+  const { currentUser} = useAuth()
 
   function saveEventToDB(newEvent) {
     return db.collection("Events").add({
@@ -25,7 +25,6 @@ function Dashboard({navigation, route}) {
     try {
       const newEvents = []
       if (route.params?.event) {
-        console.log(route.params.event)
         await saveEventToDB(route.params.event)
         route.params = null
       }
@@ -42,6 +41,13 @@ function Dashboard({navigation, route}) {
   useEffect(() => {
     if (currentUser != null) {
       HandleNewEvent().then(setIsLoading(false))
+        navigation.setOptions({
+          headerRight: () => (
+            <TouchableOpacity onPress={() => navigation.navigate("Profile") }>
+              <Text style={{padding: 20}}>Profile</Text>
+            </TouchableOpacity>
+          )
+  })
     }
   }, [currentUser, route.params?.event])
 
@@ -50,11 +56,6 @@ function Dashboard({navigation, route}) {
 
 
   const [currentEvent, setCurrentEvent] = useState(selectedEvent);
-
-
-  const handleLogOut = (e) => {
-    logout()
-  }
 
   const changeCurrentEvent = (selectedEvent) => {
     setCurrentEvent(selectedEvent);
@@ -76,10 +77,6 @@ function Dashboard({navigation, route}) {
   function removeEventfromDB(eventToDelete) {
     db.collection("Events").doc(eventToDelete.id).delete().then()
   }
-
-  const Separator = () => (
-  <View style={styles.separator} />
-  );
   
   if(isLoading) return <View></View>
 
@@ -91,19 +88,8 @@ function Dashboard({navigation, route}) {
         changeCurrentEvent={(selectedEvent) => changeCurrentEvent(selectedEvent)}
         deleteEvent={(eventToDelete) => deleteEvent(eventToDelete)} />
       <Button title="+" onPress={() => navigation.navigate("Add Event")} />
-      <Separator/>
-      <Button title="Log Out" onPress={handleLogOut}/>
     </View>
   )
 }
-
-const styles = StyleSheet.create({
-  separator: {
-    marginVertical: 8,
-    flex:1,
-    borderBottomColor: '#737373',
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-});
 
 export default Dashboard

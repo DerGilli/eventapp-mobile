@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react'
 import useStorage from '../hooks/useStorage';
-//mport '../css/ProgressBar.css'
-import ProgressBar from 'react-bootstrap/ProgressBar'
+import { View, Text } from 'react-native';
 
 const Progressbar = ({ file, setFile, setImageUrl }) => {
 
@@ -10,12 +9,14 @@ const Progressbar = ({ file, setFile, setImageUrl }) => {
   useEffect(() => {
     if (url) {
       setImageUrl(url)
-      setFile(null)
     }
-  }, [url, setFile, setImageUrl])
+  }, [url, setImageUrl])
 
   return (
-    <ProgressBar now={progress} label={`${Math.floor(progress)}%`}></ProgressBar>
+    <View style={{ width: (progress + '%'), height: 12, backgroundColor: 'steelblue', flexDirection: 'row', justifyContent:'center', alignItems:'center', marginBottom:5 }}>
+      <Text style={{fontSize:8, color: "white", }}>{'File Upload: ' + Math.floor(progress) + "%"}</Text>
+    </View>
   )
 }
+
 export default Progressbar;

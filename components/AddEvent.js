@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-//import Progressbar from './Progressbar';
-import { Button, Modal, View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import DateTimePicker from '@react-native-community/datetimepicker';
+import useStorage from '../hooks/useStorage';
+import { Button, View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import Progressbar from './Progressbar';
+import DateTimePicker from "@react-native-community/datetimepicker";
+import * as documentPicker from "expo-document-picker";
 
 const AddEvent = ({ navigation }) => {
 
@@ -12,13 +14,8 @@ const AddEvent = ({ navigation }) => {
   const [file, setFile] = useState(null);
   const allowedTypes = ['image/png', 'image/jpeg'];
 
-  //Modal
-  const [show, setShow] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
-  const handleClose = () => setShow(false);
-
-
 
   const handleDateChange = (e, selectedDate) => {
     const newDate = selectedDate || date
@@ -32,17 +29,14 @@ const AddEvent = ({ navigation }) => {
     setTime(newTime);
   }
 
-  const handleNameChange = (e) => {
-    setEventName(e.target.value)
-  }
-
-  const handleFileChange = (e) => {
-    setImageUrl(null)
-    let selectedFile = e.target.files[0];
-    if (selectedFile && allowedTypes.includes(selectedFile.type)) {
-      setFile(selectedFile)
-    } else {
-      setFile(null)
+  const handleDocumentPicker = async () => {
+    try {
+      const file = await documentPicker.getDocumentAsync({ type: "image/*" })
+      console.log(file)
+      setImageUrl(null)
+      setFile(file)
+    } catch (error) {
+      console.log(error)
     }
   }
 
@@ -53,6 +47,7 @@ const AddEvent = ({ navigation }) => {
       url: imageUrl
     }
     setImageUrl(null)
+    setFile(null)
     navigation.navigate('Dashboard', {event})
   }
 
@@ -84,6 +79,13 @@ const AddEvent = ({ navigation }) => {
               mode="time"
               />}
             </View>
+            <View style={styles.formGroup}>
+              <Text style={styles.btnDescription}>Hintergrund</Text>
+              <TouchableOpacity style={styles.btn} onPress={() => handleDocumentPicker()}>
+                <Text style={styles.btnText}>{file === null ? "Auswählen" : file.name}</Text>
+              </TouchableOpacity>
+            </View>
+            {file !== null && <Progressbar file={file} setFile={setFile} setImageUrl={ setImageUrl}/>}
             <Button title="save" onPress={handleAddEvent}/>
           </View>
         </View>
